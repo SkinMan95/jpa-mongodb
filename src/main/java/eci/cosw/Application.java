@@ -14,7 +14,6 @@ public class Application implements CommandLineRunner {
     @Autowired
     private CustomerRepository customerRepository;
 
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
@@ -36,8 +35,6 @@ public class Application implements CommandLineRunner {
             System.out.println(customer);
         }
         System.out.println();
-
-
     }
 
 }

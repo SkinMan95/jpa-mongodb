@@ -27,6 +27,8 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
+    testCompile('org.junit.jupiter:junit-jupiter-api:5.1.0')
+//    testCompile group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.1.0'
     testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
