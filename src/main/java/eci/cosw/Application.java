@@ -11,8 +11,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application implements CommandLineRunner {
 
 
-    @Autowired
-    private CustomerRepository customerRepository;
+//    @Autowired
+//    private CustomerRepository customerRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -21,20 +21,20 @@ public class Application implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        customerRepository.deleteAll();
-
-        customerRepository.save(new Customer("Alice", "Smith"));
-        customerRepository.save(new Customer("Bob", "Marley"));
-        customerRepository.save(new Customer("Jimmy", "Page"));
-        customerRepository.save(new Customer("Freddy", "Mercury"));
-        customerRepository.save(new Customer("Michael", "Jackson"));
-
-        System.out.println("Customers found with findAll():");
-        System.out.println("-------------------------------");
-        for (Customer customer : customerRepository.findAll()) {
-            System.out.println(customer);
-        }
-        System.out.println();
+//        customerRepository.deleteAll();
+//
+//        customerRepository.save(new Customer("Alice", "Smith"));
+//        customerRepository.save(new Customer("Bob", "Marley"));
+//        customerRepository.save(new Customer("Jimmy", "Page"));
+//        customerRepository.save(new Customer("Freddy", "Mercury"));
+//        customerRepository.save(new Customer("Michael", "Jackson"));
+//
+//        System.out.println("Customers found with findAll():");
+//        System.out.println("-------------------------------");
+//        for (Customer customer : customerRepository.findAll()) {
+//            System.out.println(customer);
+//        }
+//        System.out.println();
     }
 
 }
