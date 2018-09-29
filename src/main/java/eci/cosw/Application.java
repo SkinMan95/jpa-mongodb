@@ -12,12 +12,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @SpringBootApplication
@@ -62,22 +61,22 @@ public class Application implements CommandLineRunner {
         return l.get(new Random().nextInt(len));
     }
 
-    public String generateRandomLocalDate() {
+    public Date generateRandomLocalDate() {
         long minDay = LocalDate.of(1990, 1, 1).toEpochDay();
         long maxDay = LocalDate.of(2030, 12, 31).toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
         LocalDate randomDate = LocalDate.ofEpochDay(randomDay);
-        return randomDate.toString();
+        return java.sql.Date.valueOf(randomDate);
     }
 
-    public String generateRandomDate() {
+    public Date generateRandomDate() {
         Random ran = new Random();
-        String res;
+        Date res;
         do {
             res = generateRandomLocalDate();
-        } while(dueDates.contains(res));
+        } while(dueDates.contains(res.toString()));
 
-        dueDates.add(res);
+        dueDates.add(res.toString());
         return res;
     }
 
@@ -142,6 +141,17 @@ public class Application implements CommandLineRunner {
         for (User user: userRepository.findAll()) {
             System.out.println(user);
         }
+
+        // -----
+        // Todos that the dueDate has expire
+        System.out.println("Todos that the dueDate has expire: " + LocalDate.now());
+        Query query = new Query();
+        query.addCriteria(Criteria.where("dueDate").lt(new Date()));
+        List<Todo> todos = mongoOperation.find(query, Todo.class);
+        for (Todo todo : todos) {
+            System.out.println(todo);
+        }
+
     }
 
 }
