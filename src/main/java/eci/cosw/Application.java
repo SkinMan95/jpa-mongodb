@@ -104,7 +104,7 @@ public class Application implements CommandLineRunner {
         return new Todo(pickRandom(descriptions),
                 pickRandom(priorities),
                 generateRandomDate(),
-                generateRandomResponsible(),
+                pickRandom(emails),
                 pickRandom(status));
     }
 
@@ -142,9 +142,8 @@ public class Application implements CommandLineRunner {
             System.out.println(user);
         }
 
-        // -----
-        // Todos that the dueDate has expire
-        System.out.println("Todos that the dueDate has expire: " + LocalDate.now());
+        // ----- QUERIES ------
+        System.out.println("Todos that the dueDate has expired: " + LocalDate.now());
         Query query = new Query();
         query.addCriteria(Criteria.where("dueDate").lt(new Date()));
         List<Todo> todos = mongoOperation.find(query, Todo.class);
@@ -152,6 +151,22 @@ public class Application implements CommandLineRunner {
             System.out.println(todo);
         }
 
+        System.out.println("Todos that are assigned to given user and have priority greater equal to 5");
+        query = new Query();
+        String user = pickRandom(emails);
+        query.addCriteria(Criteria.where("priority").gte(5).and("responsible").is(user));
+        todos = mongoOperation.find(query, Todo.class);
+        for (Todo todo : todos) {
+            System.out.println(todo);
+        }
+
+//        System.out.println("List users that have assigned more than 2 Todos.");
+//        query = new Query();
+//        query.addCriteria(Criteria.where("priority").gte(5).and("responsible").is(user));
+//        todos = mongoOperation.find(query, Todo.class);
+//        for (Todo todo : todos) {
+//            System.out.println(todo);
+//        }
     }
 
 }
