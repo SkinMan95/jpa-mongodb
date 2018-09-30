@@ -1,5 +1,6 @@
 package eci.cosw;
 
+import com.mongodb.BasicDBObject;
 import eci.cosw.data.AppConfiguration;
 import eci.cosw.data.TodoRepository;
 import eci.cosw.data.UserRepository;
@@ -12,6 +13,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
@@ -53,7 +57,7 @@ public class Application implements CommandLineRunner {
         // -----
 
         names = new ArrayList<>(Arrays.asList("Alejandro Anzola", "David Vaca", "Juan Moreno", "Maria Paula", "Steven Mendivelso", "Alba Cecilia"));
-        emails = new ArrayList<>(Arrays.asList("cra7avila@mail.com", "blabla@mail.com", "juan-moreno@mail.com", "jackie@mail.com", "fabian@mail.com"));
+        emails = new ArrayList<>(Arrays.asList("cra7avila@mail.com", "blabla@mail.com", "juan-moreno@mail.com", "jackie@mail.com", "fabian@mail.com", "prueba@mail.com", "cerinza@mail.com"));
     }
 
     public <T> T pickRandom(List<T> l) {
@@ -100,8 +104,14 @@ public class Application implements CommandLineRunner {
         return res;
     }
 
+    public String generateRandomDescription() {
+        Random ran = new Random();
+        int len = 1 + ran.nextInt(50);
+        return generateRandomString(ran, len);
+    }
+
     public Todo generateRandomTodo() {
-        return new Todo(pickRandom(descriptions),
+        return new Todo(generateRandomDescription(),
                 pickRandom(priorities),
                 generateRandomDate(),
                 pickRandom(emails),
@@ -151,6 +161,8 @@ public class Application implements CommandLineRunner {
             System.out.println(todo);
         }
 
+        // ---
+
         System.out.println("Todos that are assigned to given user and have priority greater equal to 5");
         query = new Query();
         String user = pickRandom(emails);
@@ -160,13 +172,32 @@ public class Application implements CommandLineRunner {
             System.out.println(todo);
         }
 
-//        System.out.println("List users that have assigned more than 2 Todos.");
-//        query = new Query();
-//        query.addCriteria(Criteria.where("priority").gte(5).and("responsible").is(user));
-//        todos = mongoOperation.find(query, Todo.class);
-//        for (Todo todo : todos) {
-//            System.out.println(todo);
-//        }
+        // ---
+
+        System.out.println("List users that have assigned more than 2 Todos.");
+        Aggregation agg = Aggregation.newAggregation(
+                Aggregation.group("responsible").count().as("count"),
+                Aggregation.match(Criteria.where("count").gt(2)),
+                Aggregation.project("_id"));
+        List<BasicDBObject> mappedResult = mongoOperation.aggregate(agg, "todo", BasicDBObject.class).getMappedResults();
+        List<String> users = new ArrayList<>();
+        for (Object doc : mappedResult) {
+            org.bson.Document docc = (org.bson.Document) doc;
+            users.add(docc.get("_id").toString());
+        }
+
+        System.out.println(userRepository.findByEmailIn(users));
+
+        // ---
+
+        System.out.println("Todo list that contains the description with a length greater than 30 characters");
+        agg = Aggregation.newAggregation(
+                Aggregation.project("_id", "description", "priority", "dueDate", "responsible", "status", "_class").andExpression("strLenCP(description)").as("strLength"),
+                Aggregation.match(Criteria.where("strLength").gt(30)));
+        List<Todo> mappedTodos = mongoOperation.aggregate(agg, "todo", Todo.class).getMappedResults();
+        for (Todo todo : mappedTodos) {
+            System.out.println(todo);
+        }
     }
 
 }
